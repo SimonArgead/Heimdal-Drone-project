@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="sonoma_raceway">
+
+    <!-- Standard lys og jord -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Terræn-model fra models/sonoma_raceway/model.sdf -->
+    <include>
+      <uri>model://sonoma_raceway</uri>
+      <!-- Placer modellen i origo -->
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    
+    <!-- drone her -->
+    <!-- <include> -->
+    <!-- <uri>file:///tmp/zephyr_delta_wing.urdf</uri> -->
+    <!--  <pose>0 0 10 0 0 0</pose> --> <!-- Placeret i origo, 10 meter over jorden -->
+    <!-- </include> -->
+
+  </world>
+</sdf>
