@@ -1,0 +1,11 @@
+gazebo_ros_imu:
+  plugin: gazebo_ros_imu
+  topic: /zephyr/imu/data
+  body_name: base_link
+  update_rate: 200.0
+
+  gaussian_noise:
+    accel_stddev: 0.002
+    gyro_stddev: 0.001
+
+  service_name: /zephyr/imu/get_imu

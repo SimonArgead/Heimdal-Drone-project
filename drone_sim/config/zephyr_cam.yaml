@@ -1,0 +1,23 @@
+gazebo_ros_camera:
+  plugin: gazebo_ros_camera
+  camera_name: zephyr_cam
+  frame_name: camera_link
+  update_rate: 30.0
+
+  # Topics
+  image_topic: /zephyr/camera/image_raw
+  info_topic:  /zephyr/camera/camera_info
+
+  # Kameraegenskaber
+  horizontal_fov: 1.047     # ~60°
+  image_width:   800
+  image_height:  600
+
+  # Forvrængningsparametre (hvis relevant)
+  distortion_k1: 0.0
+  distortion_k2: 0.0
+  distortion_p1: 0.0
+  distortion_p2: 0.0
+
+  # Link til kamera_info.yaml (hvis du har et)
+  camera_info_url: package://zephyr_delta_wing/config/camera_info.yaml

@@ -1,0 +1,14 @@
+mavros:
+  ros__parameters:
+    'plugin_whitelist': [
+      'sys_status',
+      'sys_time',
+      'param',
+      'waypoint',
+      'setpoint_position',
+      'setpoint_velocity',
+      'setpoint_attitude',
+      'local_position',
+      'global_position',
+      'imu'
+    ]
