@@ -1,0 +1,359 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="zephyr_delta_wing">
+
+  <!-- 1) ARGUMENTER -->
+  <xacro:arg name="prefix"      default=""/>
+  <xacro:arg name="namespace"   default="zephyr"/>
+  <xacro:arg name="pkg"         default="package://drone_sim"/>
+
+  <!-- 2) PROPERTIES -->
+  <xacro:property name="meshes" value="$(arg pkg)/models/zephyr_delta_wing/meshes"/>
+  <xacro:property name="config" value="$(arg pkg)/config"/>
+  <xacro:property name="flap_limit" value="0.524"/>
+  <xacro:property name="flap_damping" value="0.1"/>
+  <xacro:property name="flap_effort" value="5.0"/>
+  <xacro:property name="flap_velocity" value="3.0"/>
+
+  <!-- 3) BASE LINK -->
+  <link name="$(arg prefix)base_link">
+    <inertial>
+      <origin xyz="0 -0.12 0" rpy="0 0 0"/>
+      <mass value="1.5"/>
+      <inertia
+        ixx="0.083137104" ixy="0" ixz="0"
+        iyy="0.387382402" iyz="0"
+        izz="0.469845106"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="${meshes}/wing.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="${meshes}/wing.dae"/>
+      </geometry>
+    </collision>
+    <collision name="right_rudder_collision">
+      <origin xyz="-0.76435 0.33918 0.002" rpy="-0.03 0 0"/>
+      <geometry>
+        <box size="0.005 0.12993 0.12688"/>
+      </geometry>
+    </collision>
+    <collision name="left_rudder_collision">
+      <origin xyz="0.76435 0.33918 0.002" rpy="-0.03 0 0"/>
+      <geometry>
+        <box size="0.005 0.12993 0.12688"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- 4) PROPELLER LINK -->
+  <link name="$(arg prefix)propeller">
+    <origin xyz="0 0.07 0.008" rpy="0 1.5707 0"/>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia
+        ixx="0.000367571" ixy="0" ixz="0"
+        iyy="0.00036985"  iyz="0"
+        izz="0.000003187"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="${meshes}/wing.dae"/>
+      </geometry>
+    </visual>
+    <collision name="blade1">
+      <origin xyz="0 0 0.074205" rpy="0 0 0.3"/>
+      <geometry><box size="0.02561 0.00541 0.14841"/></geometry>
+    </collision>
+    <collision name="blade2">
+      <origin xyz="0 0 -0.074205" rpy="0 0 -0.3"/>
+      <geometry><box size="0.02561 0.00541 0.14841"/></geometry>
+    </collision>
+  </link>
+
+  <!-- 5) FLAPS -->
+  <link name="$(arg prefix)flap_left">
+    <origin xyz="0.4530 0.239 0.007" rpy="0 0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0.32445671"/>
+      <mass value="0.1"/>
+      <inertia
+        ixx="0.000102319" ixy="0" ixz="0"
+        iyy="0.00334417"  iyz="0"
+        izz="0.003446072"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${meshes}/wing.dae"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.01 0.01 0" rpy="0 0 0.32445671"/>
+      <geometry><box size="0.633463031 0.110694312 0.005"/></geometry>
+    </collision>
+  </link>
+
+  <link name="$(arg prefix)flap_right">
+    <origin xyz="-0.4530 0.239 0.007" rpy="0 0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 -0.32445671"/>
+      <mass value="0.1"/>
+      <inertia
+        ixx="0.000102319" ixy="0" ixz="0"
+        iyy="0.00334417"  iyz="0"
+        izz="0.003446072"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="${meshes}/wing.dae"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.01 0.01 0" rpy="0 0 -0.32445671"/>
+      <geometry><box size="0.633463031 0.110694312 0.005"/></geometry>
+    </collision>
+  </link>
+
+  <!-- 6) JOINTS -->
+  <joint name="propeller_joint" type="continuous">
+    <parent link="$(arg prefix)base_link"/>
+    <child  link="$(arg prefix)propeller"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 -1 0">
+      <dynamics damping="0.002"/>
+    </axis>
+    <limit effort="1.0" velocity="100.0"/>
+  </joint>
+
+  <joint name="flap_left_joint" type="revolute">
+    <parent link="$(arg prefix)base_link"/>
+    <child  link="$(arg prefix)flap_left"/>
+    <origin xyz="0 -0.04 0" rpy="0 0 0"/>
+    <axis xyz="1 0.330321014 0"/>
+    <limit lower="-0.524" upper="0.524" effort="1.0" velocity="1.0"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <joint name="flap_right_joint" type="revolute">
+    <parent link="$(arg prefix)base_link"/>
+    <child  link="$(arg prefix)flap_right"/>
+    <origin xyz="0 -0.04 0" rpy="0 0 0"/>
+    <axis xyz="1 -0.330321014 0"/>
+    <limit lower="-0.524" upper="0.524" effort="1.0" velocity="1.0"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <!-- VENSTRE KAMERA -->
+  <link name="$(arg prefix)camera_left_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.03 0.03 0.03"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="$(arg prefix)camera_left_joint" type="fixed">
+    <parent link="$(arg prefix)base_link"/>
+    <child link="$(arg prefix)camera_left_link"/>
+    <origin xyz="0.0 0.05 0.1" rpy="0 0 0"/>
+  </joint>
+  <!-- HØJRE KAMERA -->
+  <link name="$(arg prefix)camera_right_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.03 0.03 0.03"/></geometry>
+    </visual>
+  </link>
+
+  <joint name="$(arg prefix)camera_right_joint" type="fixed">
+    <parent link="$(arg prefix)base_link"/>
+    <child link="$(arg prefix)camera_right_link"/>
+    <origin xyz="0.0 -0.05 0.1" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 8) GAZEBO AERODYNAMICS (LiftDrag) -->
+  <!-- Invisible canard -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="invisible_canard" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.13</a0><cla>3.7</cla><cda>0.06417</cda><cma>-1.8</cma>
+      <alpha_stall>0.33914</alpha_stall><cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9234</cda_stall><cma_stall>0</cma_stall>
+      <cp>0 -0.1 0</cp><area>0.50</area><air_density>1.2041</air_density>
+      <forward>0 -1 0</forward><upward>0 0 1</upward>
+      <link_name>base_link</link_name>
+    </plugin>
+  </gazebo>
+
+  <!-- Left wing -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="left_wing" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.15</a0><cla>6.8</cla><cda>0.06417</cda><cma>-1.8</cma>
+      <alpha_stall>0.63914</alpha_stall><cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9234</cda_stall><cma_stall>0</cma_stall>
+      <cp>0.7 0.20 0</cp><area>0.10</area><air_density>1.2041</air_density>
+      <forward>0 -1 0</forward><upward>0 0 1</upward>
+      <link_name>base_link</link_name>
+      <control_joint_name>flap_left_joint</control_joint_name>
+      <control_joint_rad_to_cl>-5.0</control_joint_rad_to_cl>
+    </plugin>
+  </gazebo>
+
+  <!-- Right wing -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="right_wing" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.15</a0><cla>6.8</cla><cda>0.06417</cda><cma>-1.8</cma>
+      <alpha_stall>0.63914</alpha_stall><cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9234</cda_stall><cma_stall>0</cma_stall>
+      <cp>-0.7 0.20 0</cp><area>0.10</area><air_density>1.2041</air_density>
+      <forward>0 -1 0</forward><upward>0 0 1</upward>
+      <link_name>base_link</link_name>
+      <control_joint_name>flap_right_joint</control_joint_name>
+      <control_joint_rad_to_cl>-5.0</control_joint_rad_to_cl>
+    </plugin>
+  </gazebo>
+
+  <!-- Left rudder -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="left_rudder" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.0</a0><cla>4.7528</cla><cda>0.6417</cda><cma>-1.8</cma>
+      <alpha_stall>0.33914</alpha_stall><cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9234</cda_stall><cma_stall>0</cma_stall>
+      <cp>-0.76 0.30 0</cp><area>0.12</area><air_density>1.2041</air_density>
+      <forward>0 -1 0</forward><upward>1 0 0</upward>
+      <link_name>base_link</link_name>
+    </plugin>
+  </gazebo>
+
+  <!-- Right rudder -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="right_rudder" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.0</a0><cla>4.7528</cla><cda>0.6417</cda><cma>-1.8</cma>
+      <alpha_stall>0.33914</alpha_stall><cla_stall>-3.85</cla_stall>
+      <cda_stall>-0.9234</cda_stall><cma_stall>0</cma_stall>
+      <cp>0.76 0.30 0</cp><area>0.12</area><air_density>1.2041</air_density>
+      <forward>0 -1 0</forward><upward>1 0 0</upward>
+      <link_name>base_link</link_name>
+    </plugin>
+  </gazebo>
+
+  <!-- Propeller blade 1 -->
+  <gazebo reference="$(arg prefix)propeller">
+    <plugin name="propeller_blade_1" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.30</a0><alpha_stall>1.4</alpha_stall><cla>4.25</cla><cda>0.10</cda>
+      <cma>0.00</cma><cla_stall>-0.025</cla_stall><cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall><area>0.02</area><air_density>1.2041</air_density>
+      <cp>0 0 0.074205</cp><forward>-1 0 0</forward><upward>0 -1 0</upward>
+      <link_name>propeller</link_name>
+    </plugin>
+  </gazebo>
+
+  <!-- Propeller blade 2 -->
+  <gazebo reference="$(arg prefix)propeller">
+    <plugin name="propeller_blade_2" filename="libgz-sim8-lift-drag-system.so">
+      <a0>0.30</a0><alpha_stall>1.4</alpha_stall><cla>4.25</cla><cda>0.10</cda>
+      <cma>0.00</cma><cla_stall>-0.025</cla_stall><cda_stall>0.0</cda_stall>
+      <cma_stall>0.0</cma_stall><area>0.02</area><air_density>1.2041</air_density>
+      <cp>0 0 -0.074205</cp><forward>1 0 0</forward><upward>0 -1 0</upward>
+      <link_name>propeller</link_name>
+    </plugin>
+  </gazebo>
+
+  <!-- 9) GAZEBO ROS-SENSOR PLUGINS -->
+  <gazebo reference="$(arg prefix)base_link">
+    <plugin name="$(arg namespace)_imu" filename="libgazebo_ros_imu.so">
+      <ros>
+        <namespace>/$(arg namespace)</namespace>
+        <remapping>imu/data:=/zephyr/imu/data</remapping>
+      </ros>
+      <bodyName>base_link</bodyName>
+      <updateRate>200.0</updateRate>
+      <gaussianNoise>
+        <xyStdDev>0.002</xyStdDev>
+        <zStdDev>0.002</zStdDev>
+      </gaussianNoise>
+    </plugin>
+  </gazebo>
+
+  <!-- Venstre kamera -->
+  <gazebo reference="$(arg prefix)camera_left_link">
+    <plugin name="$(arg namespace)_camera_left" filename="libgazebo_ros_camera.so">
+      <ros>
+        <namespace>/$(arg namespace)</namespace>
+      </ros>
+      <cameraName>camera_left</cameraName>
+      <frameName>camera_left_link</frameName>
+      <imageTopicName>/zephyr/camera_left/image_raw</imageTopicName>
+      <cameraInfoTopicName>/zephyr/camera_left/camera_info</cameraInfoTopicName>
+      <updateRate>30.0</updateRate>
+      <horizontalFOV>1.047</horizontalFOV>
+      <imageWidth>800</imageWidth>
+      <imageHeight>600</imageHeight>
+    </plugin>
+  </gazebo>
+
+  <!-- Højre kamera -->
+  <gazebo reference="$(arg prefix)camera_right_link">
+    <plugin name="$(arg namespace)_camera_right" filename="libgazebo_ros_camera.so">
+      <ros>
+        <namespace>/$(arg namespace)</namespace>
+      </ros>
+      <cameraName>camera_right</cameraName>
+      <frameName>camera_right_link</frameName>
+      <imageTopicName>/zephyr/camera_right/image_raw</imageTopicName>
+      <cameraInfoTopicName>/zephyr/camera_right/camera_info</cameraInfoTopicName>
+      <updateRate>30.0</updateRate>
+      <horizontalFOV>1.047</horizontalFOV>
+      <imageWidth>800</imageWidth>
+      <imageHeight>600</imageHeight>
+    </plugin>
+  </gazebo>
+
+  <!-- ROS2_CONTROL hardware/grænseflader -->
+  <ros2_control name="zephyr_hw" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    
+    <joint name="propeller_joint">
+      <command_interface name="velocity">
+        <param name="min">-100.0</param>
+        <param name="max">100.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <joint name="flap_left_joint">
+      <command_interface name="effort">
+        <param name="min">-1.0</param>
+        <param name="max">1.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <joint name="flap_right_joint">
+      <command_interface name="effort">
+        <param name="min">-1.0</param>
+        <param name="max">1.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+  <!-- Gazebo ROS2 Control plugin (Jazzy/Harmonic) -->
+  <gazebo>
+    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="gz_ros2_control-system">
+      <!-- YAML med controller_manager-parametre -->
+      <parameters>/home/simon/ros2_ws/src/drone_sim/config/drone_control.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+</robot>
