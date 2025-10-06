@@ -3,7 +3,7 @@ A drone project in which I work with ROS2 (Jazzy) and Gazebo (Harmonic V8.9.0) s
 
 Current issue:
 
-The current issue in this project is that mavros crashes. This could be due to: Mavros starts multiple times/starts multiple nodes.
+The current issue in this project is that mavros crashes. This could be due to: Mavros starts multiple times/starts multiple nodes. Other issue: Implement ardupilot in the .xacro file.
 
 Dependencies:
 
